@@ -1,227 +1,1015 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kohaku Creative Studio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kohaku Creative Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sometype+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #FF5511;
+    --bg: #0a0a0a;
+    --bg-light: #f4f4f4;
+    --text: #f4f4f4;
+    --text-dim: rgba(244,244,244,0.38);
+    --text-mid: rgba(244,244,244,0.65);
+    --mono: 'Sometype Mono', monospace;
+  }
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <style>
-    :root {
-      --accent: #FF5511;
-      --black: #0a0a0a;
-      --white: #f4f4f4;
-      --gray: #888;
-    }
+  ::selection { background: var(--accent); color: var(--bg); }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      cursor: default;
-    }
+  html { scroll-behavior: smooth; }
 
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background: var(--black);
-      color: var(--white);
-      line-height: 1.6;
-    }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    cursor: none;
+    overflow-x: hidden;
+  }
 
-    section {
-      padding: 120px 10%;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: normal;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 34px; height: 34px;
+    border: 1px solid rgba(255,85,17,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.18s ease, width 0.25s, height 0.25s, border-color 0.25s;
+  }
+  body.hovering #cursor { width: 6px; height: 6px; }
+  body.hovering #cursor-ring { width: 52px; height: 52px; border-color: var(--accent); }
 
-    h1, h2, h3 {
-      font-weight: 400;
-      letter-spacing: 0.05em;
-    }
+  /* ── PROGRESS ── */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 0%;
+    height: 2px;
+    background: var(--accent);
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
 
-    .hero {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+  /* ── SECTION NUMBER FIXED ── */
+  #section-indicator {
+    position: fixed;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .sec-dot {
+    width: 4px; height: 4px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+  .sec-dot.active { background: var(--accent); width: 20px; border-radius: 2px; }
 
-    .hero h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    mix-blend-mode: difference;
+  }
+  .nav-logo svg path { fill: var(--text); }
+  .nav-logo svg { width: 120px; height: auto; }
+  .nav-right {
+    display: flex;
+    gap: 32px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+  .nav-right a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-right a:hover { color: var(--text); }
 
-    .hero p {
-      color: var(--gray);
-      max-width: 600px;
-    }
+  /* ── SECTIONS ── */
+  section {
+    min-height: 100vh;
+    padding: 120px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
 
-    .btn {
-      margin-top: 40px;
-      display: inline-block;
-      padding: 12px 20px;
-      border: 1px solid var(--white);
-      text-decoration: none;
-      color: var(--white);
-      transition: 0.3s;
-    }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 64px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .section-label.visible { opacity: 1; transform: translateY(0); }
 
-    .btn:hover {
-      background: var(--accent);
-      color: var(--black);
-      border-color: var(--accent);
-    }
+  /* ── HERO ── */
+  #hero {
+    padding-top: 0;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1200px;
+  }
 
-    .section-number {
-      color: var(--accent);
-      margin-bottom: 20px;
-      font-size: 12px;
-    }
+  .hero-title {
+    font-size: clamp(56px, 8vw, 128px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 0.92;
+    margin-bottom: 48px;
+    overflow: hidden;
+  }
+  .hero-title .line {
+    display: block;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .hero-title .line.visible { opacity: 1; transform: translateY(0); }
+  .hero-title .line:nth-child(2) { transition-delay: 0.12s; }
+  .hero-title .line:nth-child(3) { transition-delay: 0.24s; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 60px;
-      margin-top: 60px;
-    }
+  .hero-sub {
+    font-size: clamp(11px, 1.2vw, 14px);
+    letter-spacing: 0.12em;
+    color: var(--text-mid);
+    line-height: 1.8;
+    max-width: 560px;
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+  }
+  .hero-sub.visible { opacity: 1; transform: translateY(0); }
 
-    .project {
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding-top: 20px;
-      transition: 0.3s;
-    }
+  .hero-services {
+    display: flex;
+    gap: 0;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 72px;
+    opacity: 0;
+    transition: opacity 1s ease 0.7s;
+    flex-wrap: wrap;
+  }
+  .hero-services.visible { opacity: 1; }
+  .hero-services span { padding-right: 20px; margin-right: 20px; border-right: 1px solid rgba(244,244,244,0.15); }
+  .hero-services span:last-child { border-right: none; }
 
-    .project:hover {
-      transform: translateX(10px);
-      color: var(--accent);
-    }
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    max-width: 420px;
+    line-height: 1.9;
+    margin-bottom: 56px;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 1s ease 0.85s;
+  }
+  .hero-desc.visible { opacity: 1; }
 
-    .small {
-      color: var(--gray);
-      font-size: 13px;
-    }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid rgba(244,244,244,0.2);
+    padding: 14px 28px;
+    position: relative;
+    transition: color 0.3s, border-color 0.3s, background 0.3s;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 1s ease 1s, color 0.3s, border-color 0.3s, background 0.3s;
+  }
+  .cta-btn.visible { opacity: 1; }
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s cubic-bezier(0.76,0,0.24,1);
+  }
+  .cta-btn:hover::before { transform: scaleX(1); }
+  .cta-btn:hover { color: var(--bg); border-color: var(--accent); }
+  .cta-btn span { position: relative; z-index: 1; }
+  .cta-arrow { position: relative; z-index: 1; transition: transform 0.3s; }
+  .cta-btn:hover .cta-arrow { transform: translateX(4px); }
 
-    footer {
-      padding: 120px 10%;
-    }
+  /* HERO BG GLYPH */
+  .hero-bg-k {
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 40vw;
+    font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(244,244,244,0.04);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+  /* ── MANIFESTO ── */
+  #manifesto { background: var(--bg); }
+  .manifesto-body {
+    max-width: 860px;
+  }
+  .manifesto-line {
+    font-size: clamp(20px, 3.2vw, 44px);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-dim);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.9s ease, transform 0.9s ease, color 0.5s;
+    margin-bottom: 0.2em;
+  }
+  .manifesto-line.visible { opacity: 1; transform: translateY(0); }
+  .manifesto-line.highlight { color: var(--text); }
+  .manifesto-line:nth-child(2) { transition-delay: 0.1s; }
+  .manifesto-line:nth-child(3) { transition-delay: 0.2s; }
+  .manifesto-line:nth-child(4) { transition-delay: 0.3s; }
+  .manifesto-line:nth-child(5) { transition-delay: 0.4s; }
+  .manifesto-line:nth-child(6) { transition-delay: 0.5s; }
+  .manifesto-line:nth-child(7) { transition-delay: 0.6s; }
+  .manifesto-line:nth-child(8) { transition-delay: 0.7s; }
 
-  </style>
+  .manifesto-coda {
+    margin-top: 64px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 1.2s ease 0.8s;
+  }
+  .manifesto-coda.visible { opacity: 1; }
+
+  /* ── ARCHIVE ── */
+  #archive { background: var(--bg); }
+  .archive-intro {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 80px;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .archive-intro.visible { opacity: 1; }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .archive-item {
+    border: 1px solid rgba(244,244,244,0.08);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s ease, transform 0.8s ease, border-color 0.3s;
+  }
+  .archive-item.visible { opacity: 1; transform: translateY(0); }
+  .archive-item:nth-child(2) { transition-delay: 0.1s; }
+  .archive-item:nth-child(3) { transition-delay: 0.2s; }
+  .archive-item:nth-child(4) { transition-delay: 0.3s; }
+  .archive-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,85,17,0.04);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .archive-item:hover { border-color: rgba(255,85,17,0.4); }
+  .archive-item:hover::before { opacity: 1; }
+  .archive-item:hover .archive-img {
+    filter: grayscale(0%) brightness(1.1);
+    box-shadow: 0 0 24px 2px rgba(255,85,17,0.25);
+  }
+
+  .archive-num {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .archive-type {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .archive-title {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+  .archive-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .archive-tag {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .archive-tag::before { content: '→'; color: var(--accent); }
+  .archive-img {
+    width: 100%;
+    height: 180px;
+    background: rgba(244,244,244,0.04);
+    margin-bottom: 28px;
+    filter: grayscale(100%) brightness(0.6);
+    transition: filter 0.5s ease, box-shadow 0.5s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .archive-img-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,85,17,0.08) 0%, transparent 60%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .archive-img-glyph {
+    font-size: 64px;
+    font-weight: 700;
+    color: rgba(244,244,244,0.06);
+    letter-spacing: -0.05em;
+  }
+  .archive-cta {
+    display: block;
+    margin-top: 48px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-align: center;
+    cursor: pointer;
+    padding: 16px;
+    border: 1px solid rgba(244,244,244,0.1);
+    transition: color 0.3s, border-color 0.3s;
+    text-decoration: none;
+  }
+  .archive-cta:hover { color: var(--text); border-color: var(--text-dim); }
+
+  /* ── CAPABILITIES ── */
+  #capabilities { background: var(--bg); border-top: 1px solid rgba(244,244,244,0.06); }
+  .cap-intro {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 80px;
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .cap-intro.visible { opacity: 1; }
+  .cap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px 80px;
+  }
+  .cap-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .cap-item.visible { opacity: 1; transform: translateY(0); }
+  .cap-item:nth-child(2) { transition-delay: 0.1s; }
+  .cap-item:nth-child(3) { transition-delay: 0.2s; }
+  .cap-item:nth-child(4) { transition-delay: 0.3s; }
+  .cap-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(244,244,244,0.1);
+  }
+  .cap-name span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .cap-items {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    line-height: 2;
+  }
+  .cap-footer {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(244,244,244,0.06);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--text-mid);
+    font-style: italic;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .cap-footer.visible { opacity: 1; }
+
+  /* ── PROCESS ── */
+  #process { background: #0d0d0d; }
+  .process-intro {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 80px;
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .process-intro.visible { opacity: 1; }
+  .process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 800px;
+  }
+  .process-step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 32px;
+    padding: 32px 0;
+    border-bottom: 1px solid rgba(244,244,244,0.06);
+    align-items: start;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .process-step.visible { opacity: 1; transform: translateX(0); }
+  .process-step:nth-child(2) { transition-delay: 0.1s; }
+  .process-step:nth-child(3) { transition-delay: 0.2s; }
+  .process-step:nth-child(4) { transition-delay: 0.3s; }
+  .process-step:nth-child(5) { transition-delay: 0.4s; }
+  .process-step:first-child { border-top: 1px solid rgba(244,244,244,0.06); }
+  .process-num {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  .process-content {}
+  .process-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .process-desc {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+  .process-coda {
+    margin-top: 64px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  .process-coda.visible { opacity: 1; }
+
+  /* ── CONTEXTS ── */
+  #contexts { background: var(--bg); }
+  .contexts-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 64px;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .contexts-types.visible { opacity: 1; }
+  .ctx-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    padding: 8px 18px;
+    border: 1px solid rgba(244,244,244,0.1);
+    transition: color 0.3s, border-color 0.3s, background 0.3s;
+    cursor: pointer;
+  }
+  .ctx-tag:hover { color: var(--bg); border-color: var(--accent); background: var(--accent); }
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .logo-grid.visible { opacity: 1; }
+  .logo-cell {
+    border: 1px solid rgba(244,244,244,0.06);
+    aspect-ratio: 2/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: pointer;
+  }
+  .logo-cell:hover { border-color: var(--accent); background: rgba(255,85,17,0.05); }
+  .logo-cell-inner {
+    width: 40px; height: 8px;
+    background: rgba(244,244,244,0.08);
+    border-radius: 1px;
+  }
+
+  /* ── PRINCIPLE ── */
+  #principle {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  #principle .section-label { color: var(--bg); opacity: 0.5; }
+  .principle-body {
+    max-width: 800px;
+  }
+  .principle-line {
+    font-size: clamp(24px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--bg);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .principle-line.visible { opacity: 1; transform: translateY(0); }
+  .principle-line.dim { font-weight: 400; opacity: 0; color: rgba(10,10,10,0.45); }
+  .principle-line.dim.visible { opacity: 1; }
+  .principle-line:nth-child(2) { transition-delay: 0.15s; }
+  .principle-line:nth-child(3) { transition-delay: 0.3s; }
+  .principle-line:nth-child(4) { transition-delay: 0.45s; }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--bg); min-height: 80vh; }
+  .contact-status {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    margin-bottom: 64px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+  .contact-status.visible { opacity: 1; }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .contact-email {
+    font-size: clamp(28px, 5vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    margin-bottom: 64px;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    line-height: 1.1;
+  }
+  .contact-email.visible { opacity: 1; }
+  .contact-email::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: width 0.4s cubic-bezier(0.76,0,0.24,1);
+  }
+  .contact-email:hover::after { width: 100%; }
+  .contact-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--bg);
+    background: var(--accent);
+    text-decoration: none;
+    padding: 16px 32px;
+    transition: background 0.3s, color 0.3s;
+    opacity: 0;
+    transition: opacity 0.9s ease, background 0.3s, color 0.3s;
+  }
+  .contact-cta.visible { opacity: 1; }
+  .contact-cta:hover { background: var(--text); color: var(--bg); }
+  .contact-cta span { transition: transform 0.3s; display: inline-block; }
+  .contact-cta:hover span { transform: translateX(4px); }
+
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid rgba(244,244,244,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+  }
+
+  /* ── DIVIDER LINE ── */
+  .v-line {
+    position: absolute;
+    top: 0; left: 48px;
+    width: 1px;
+    height: 100%;
+    background: rgba(244,244,244,0.05);
+    pointer-events: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    section { padding: 80px 24px; }
+    .archive-grid { grid-template-columns: 1fr; }
+    .cap-grid { grid-template-columns: 1fr; }
+    .logo-grid { grid-template-columns: repeat(3, 1fr); }
+    #section-indicator { display: none; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .nav-right { display: none; }
+  }
+</style>
 </head>
-
 <body>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>KOHaku Creative Studio</h1>
-  <p>
-    We design systems for brands, events, and moments that need to be remembered.
-  </p>
-  <a href="#" class="btn">ENTER SYSTEM INDEX</a>
-</section>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="scroll-progress"></div>
 
-<!-- MANIFESTO -->
-<section>
-  <div class="section-number">02 / MANIFESTO</div>
-  <p>
-    A brand is not a logo.<br>
-    An event is not a schedule.<br>
-    A photograph is not evidence.<br><br>
+<div id="section-indicator">
+  <div class="sec-dot active" data-target="hero"></div>
+  <div class="sec-dot" data-target="manifesto"></div>
+  <div class="sec-dot" data-target="archive"></div>
+  <div class="sec-dot" data-target="capabilities"></div>
+  <div class="sec-dot" data-target="process"></div>
+  <div class="sec-dot" data-target="contexts"></div>
+  <div class="sec-dot" data-target="principle"></div>
+  <div class="sec-dot" data-target="contact"></div>
+</div>
 
-    They are systems of perception.<br><br>
+<nav>
+  <a href="#hero" class="nav-logo">
+    <svg width="512" height="176" viewBox="0 0 512 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M133 84.89L120.37 97.52C121.26 94.5 121.75 91.31 121.75 88C121.75 69.39 106.61 54.25 88 54.25C84.69 54.25 81.5 54.74 78.48 55.63L91.11 43H133V28H84.89L28 84.89V133H43V91.11L55.63 78.48C54.74 81.5 54.25 84.69 54.25 88C54.25 106.61 69.39 121.75 88 121.75C91.31 121.75 94.5 121.26 97.52 120.37L84.89 133H43V148H91.11L148 91.11V43H133V84.89ZM106.75 88C106.75 97.7 99.34 105.71 89.89 106.65C93.53 101.68 95.73 95.2 95.73 88.1C95.73 81 93.46 74.33 89.73 69.33C99.26 70.2 106.76 78.24 106.76 87.99H106.75V88ZM69.25 88C69.25 78.16 76.87 70.09 86.51 69.33C82.77 74.33 80.5 80.91 80.5 88.11C80.5 95.31 82.71 101.69 86.35 106.67C76.78 105.83 69.25 97.78 69.25 88Z" fill="currentColor"/>
+      <path d="M226.82 93.46L210.28 63.11L226.43 43H214.86L197.32 65.59V43H188V93.46H197.32V79.18L203.92 70.95L216.18 93.46H226.82Z" fill="currentColor"/>
+      <path d="M250.22 94.4001C256.69 94.4001 261.57 92.1901 264.85 87.7601C268.14 83.3301 269.78 76.8301 269.78 68.2301C269.78 59.6301 268.14 53.0701 264.85 48.6701C261.56 44.2701 256.68 42.0701 250.22 42.0701C243.76 42.0701 238.94 44.2701 235.62 48.6701C232.31 53.0701 230.65 59.5901 230.65 68.2301C230.65 76.8701 232.31 83.3301 235.62 87.7601C238.93 92.1901 243.8 94.4001 250.22 94.4001ZM250.22 50.7601C256.95 50.7601 260.31 56.5801 260.31 68.2301C260.31 79.8801 256.95 85.7001 250.22 85.7001C243.49 85.7001 240.13 79.8801 240.13 68.2301C240.13 56.5801 243.49 50.7601 250.22 50.7601Z" fill="currentColor"/>
+      <path d="M305.41 63.5H289.11V43H279.8V93.46H289.11V72.04H305.41V93.46H314.73V43H305.41V63.5Z" fill="currentColor"/>
+      <path d="M339.59 43L322.98 93.46H332.3L335.87 82.28H352.48L356.05 93.46H365.83L349.21 43H339.58H339.59ZM338.5 73.74L344.17 55.19L349.84 73.74H338.5Z" fill="currentColor"/>
+      <path d="M396.32 63.11L412.46 43H400.9L383.35 65.59V43H374.03V93.46H383.35V79.18L389.95 70.95L402.21 93.46H412.85L396.32 63.11Z" fill="currentColor"/>
+      <path d="M446.82 76.62C446.82 82.68 444.05 85.7 438.51 85.7C432.97 85.7 430.2 82.67 430.2 76.62V43H420.88V77.24C420.88 82.83 422.38 87.09 425.38 90.01C428.38 92.93 432.73 94.4 438.42 94.4C444.11 94.4 448.46 92.94 451.46 90.01C454.46 87.09 455.96 82.83 455.96 77.24V43H446.8V76.62H446.82Z" fill="currentColor"/>
+    </svg>
+  </a>
+  <div class="nav-right">
+    <a href="#archive">WORK</a>
+    <a href="#capabilities">SERVICES</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+</nav>
 
-    We design what holds them together.<br><br>
-
-    Identity becomes space.<br>
-    Space becomes moment.<br>
-    Moment becomes memory.
-  </p>
-</section>
-
-<!-- WORK -->
-<section>
-  <div class="section-number">03 / SYSTEM ARCHIVE</div>
-
-  <div class="grid">
-
-    <div class="project">
-      <div class="small">[01] IDENTITY SYSTEM</div>
-      <h3>PROJECT XXXXX</h3>
-      <p class="small">Visual language / Typography / Structure</p>
-    </div>
-
-    <div class="project">
-      <div class="small">[02] EVENT SYSTEM</div>
-      <h3>PROJECT XXXXX</h3>
-      <p class="small">Spatial / Experience / Narrative</p>
-    </div>
-
-    <div class="project">
-      <div class="small">[03] DOCUMENT SYSTEM</div>
-      <h3>PROJECT XXXXX</h3>
-      <p class="small">Photography / Editorial / Memory</p>
-    </div>
-
-    <div class="project">
-      <div class="small">[04] INTEGRATED SYSTEM</div>
-      <h3>PROJECT XXXXX</h3>
-      <p class="small">Brand × Event × Documentation</p>
-    </div>
-
+<!-- 01 HERO -->
+<section id="hero">
+  <div class="hero-bg-k">K</div>
+  <div class="hero-grid">
+    <div class="section-label">0 1 &nbsp;/&nbsp; ENTRY POINT</div>
+    <h1 class="hero-title">
+      <span class="line">WE DESIGN</span>
+      <span class="line">SYSTEMS FOR</span>
+      <span class="line">MEMORY.</span>
+    </h1>
+    <p class="hero-sub">BRAND IDENTITY &nbsp;·&nbsp; EVENT PLANNING &nbsp;·&nbsp; EVENT PRODUCTION &nbsp;·&nbsp; EVENT PHOTOGRAPHY</p>
+    <p class="hero-desc">We construct visual and experiential systems that connect identity, space, and time into one coherent structure.<br><br>No decoration. Only intention.</p>
+    <a href="#manifesto" class="cta-btn">
+      <span>ENTER SYSTEM INDEX</span>
+      <span class="cta-arrow">→</span>
+    </a>
   </div>
 </section>
 
-<!-- SERVICES -->
-<section>
-  <div class="section-number">04 / CAPABILITIES</div>
-
-  <p>
-    Brand Identity Systems<br>
-    Event Strategy & Planning<br>
-    Event Production Design<br>
-    Event Photography Systems
-  </p>
+<!-- 02 MANIFESTO -->
+<section id="manifesto">
+  <div class="v-line"></div>
+  <div class="section-label">0 2 &nbsp;/&nbsp; MANIFESTO</div>
+  <div class="manifesto-body">
+    <p class="manifesto-line">A brand is not a logo.</p>
+    <p class="manifesto-line">An event is not a schedule.</p>
+    <p class="manifesto-line">A photograph is not evidence.</p>
+    <p class="manifesto-line" style="margin-top: 1em; color: var(--text-dim); font-size: clamp(14px, 2vw, 22px);">They are temporary systems of perception.</p>
+    <p class="manifesto-line highlight" style="margin-top: 1.2em;">We design what holds them together.</p>
+    <p class="manifesto-line" style="font-size: clamp(12px, 1.6vw, 18px); color: var(--text-dim); margin-top: 1.4em; max-width: 600px;">At Kohaku Creative Studio, we build structures that define how brands exist — and how they are experienced in real time.</p>
+    <p class="manifesto-line highlight" style="margin-top: 1.4em;">Identity becomes space.<br>Space becomes moment.<br>Moment becomes memory.</p>
+    <p class="manifesto-line" style="margin-top: 1.4em; font-size: clamp(13px, 1.8vw, 22px); color: var(--text-dim);">Nothing stands alone. Everything is system.</p>
+    <div class="manifesto-coda">— KOHAKU CREATIVE STUDIO</div>
+  </div>
 </section>
 
-<!-- PROCESS -->
-<section>
-  <div class="section-number">05 / SYSTEM FLOW</div>
-
-  <p>
-    01 — Field Analysis<br>
-    02 — System Design<br>
-    03 — Experience Build<br>
-    04 — Execution Control<br>
-    05 — Memory Archive
-  </p>
+<!-- 03 ARCHIVE -->
+<section id="archive">
+  <div class="v-line"></div>
+  <div class="section-label">0 3 &nbsp;/&nbsp; SYSTEM ARCHIVE</div>
+  <p class="archive-intro">Each project is treated as a living structure.</p>
+  <div class="archive-grid">
+    <div class="archive-item">
+      <div class="archive-img"><div class="archive-img-inner"><div class="archive-img-glyph">ID</div></div></div>
+      <div class="archive-num">[01]</div>
+      <div class="archive-type">IDENTITY SYSTEM</div>
+      <div class="archive-title">Brand architecture built for clarity and longevity.</div>
+      <div class="archive-tags">
+        <div class="archive-tag">Visual identity system</div>
+        <div class="archive-tag">Typography logic</div>
+        <div class="archive-tag">Application framework</div>
+      </div>
+    </div>
+    <div class="archive-item">
+      <div class="archive-img"><div class="archive-img-inner"><div class="archive-img-glyph">EV</div></div></div>
+      <div class="archive-num">[02]</div>
+      <div class="archive-type">EVENT SYSTEM</div>
+      <div class="archive-title">Spatial and narrative design for live experiences.</div>
+      <div class="archive-tags">
+        <div class="archive-tag">Concept direction</div>
+        <div class="archive-tag">Environmental graphics</div>
+        <div class="archive-tag">Experience flow design</div>
+      </div>
+    </div>
+    <div class="archive-item">
+      <div class="archive-img"><div class="archive-img-inner"><div class="archive-img-glyph">DC</div></div></div>
+      <div class="archive-num">[03]</div>
+      <div class="archive-type">DOCUMENT SYSTEM</div>
+      <div class="archive-title">Photographic structure capturing event memory.</div>
+      <div class="archive-tags">
+        <div class="archive-tag">Visual documentation system</div>
+        <div class="archive-tag">Editorial direction</div>
+        <div class="archive-tag">Post-event narrative construction</div>
+      </div>
+    </div>
+    <div class="archive-item">
+      <div class="archive-img"><div class="archive-img-inner"><div class="archive-img-glyph">∑</div></div></div>
+      <div class="archive-num">[04]</div>
+      <div class="archive-type">INTEGRATED SYSTEM</div>
+      <div class="archive-title">Brand × Event × Documentation unified system.</div>
+      <div class="archive-tags">
+        <div class="archive-tag">Cross-media identity logic</div>
+        <div class="archive-tag">Time-based visual consistency</div>
+      </div>
+    </div>
+  </div>
+  <a href="#" class="archive-cta">[ VIEW FULL ARCHIVE ] →</a>
 </section>
 
-<!-- PRINCIPLE -->
-<section>
-  <div class="section-number">07 / PRINCIPLE</div>
-
-  <p>
-    We are not designing aesthetics.<br><br>
-    We are designing systems that make perception stable across time.
-  </p>
+<!-- 04 CAPABILITIES -->
+<section id="capabilities">
+  <div class="v-line"></div>
+  <div class="section-label">0 4 &nbsp;/&nbsp; CAPABILITIES</div>
+  <p class="cap-intro">We do not deliver assets. We design systems.</p>
+  <div class="cap-grid">
+    <div class="cap-item">
+      <div class="cap-name"><span></span>BRAND IDENTITY SYSTEM</div>
+      <div class="cap-items">Logo systems · Visual language<br>Typography structure · Brand guidelines</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-name"><span></span>EVENT STRATEGY & PLANNING</div>
+      <div class="cap-items">Concept development · Narrative design<br>Experience architecture</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-name"><span></span>EVENT PRODUCTION DESIGN</div>
+      <div class="cap-items">Stage / spatial visuals · Environmental graphics<br>On-site direction</div>
+    </div>
+    <div class="cap-item">
+      <div class="cap-name"><span></span>EVENT PHOTOGRAPHY SYSTEM</div>
+      <div class="cap-items">Documentation logic · Editorial framing<br>Memory construction</div>
+    </div>
+  </div>
+  <p class="cap-footer">Design is not output. It is coordination across systems.</p>
 </section>
 
-<!-- CONTACT -->
+<!-- 05 PROCESS -->
+<section id="process">
+  <div class="v-line"></div>
+  <div class="section-label">0 5 &nbsp;/&nbsp; SYSTEM FLOW</div>
+  <p class="process-intro">Structured ambiguity as methodology.</p>
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="process-num">01 —</div>
+      <div class="process-content">
+        <div class="process-title">FIELD ANALYSIS</div>
+        <div class="process-desc">Context · audience · cultural tension mapping</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-num">02 —</div>
+      <div class="process-content">
+        <div class="process-title">SYSTEM DESIGN</div>
+        <div class="process-desc">Rules · structure · visual logic definition</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-num">03 —</div>
+      <div class="process-content">
+        <div class="process-title">EXPERIENCE BUILD</div>
+        <div class="process-desc">Space · event · interaction translation</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-num">04 —</div>
+      <div class="process-content">
+        <div class="process-title">EXECUTION CONTROL</div>
+        <div class="process-desc">Real-world consistency across all outputs</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-num">05 —</div>
+      <div class="process-content">
+        <div class="process-title">MEMORY ARCHIVE</div>
+        <div class="process-desc">Documentation of what happened and how it persists</div>
+      </div>
+    </div>
+  </div>
+  <div class="process-coda">No project ends. It only transforms state.</div>
+</section>
+
+<!-- 06 CONTEXTS -->
+<section id="contexts">
+  <div class="v-line"></div>
+  <div class="section-label">0 6 &nbsp;/&nbsp; WHERE WE WORK</div>
+  <div class="contexts-types">
+    <div class="ctx-tag">BRAND SYSTEMS</div>
+    <div class="ctx-tag">CULTURAL EVENTS</div>
+    <div class="ctx-tag">COMMERCIAL ACTIVATIONS</div>
+    <div class="ctx-tag">SPATIAL EXPERIENCES</div>
+    <div class="ctx-tag">CREATIVE PRODUCTIONS</div>
+  </div>
+  <div class="logo-grid">
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+    <div class="logo-cell"><div class="logo-cell-inner"></div></div>
+  </div>
+</section>
+
+<!-- 07 PRINCIPLE -->
+<section id="principle">
+  <div class="section-label">0 7 &nbsp;/&nbsp; DESIGN PRINCIPLE</div>
+  <div class="principle-body">
+    <p class="principle-line dim">We are not designing aesthetics.</p>
+    <p class="principle-line">We are designing systems</p>
+    <p class="principle-line">that make perception</p>
+    <p class="principle-line">stable across time.</p>
+    <p class="principle-line dim" style="margin-top: 1em;">Trends fade. Systems remain.</p>
+    <p class="principle-line dim">Meaning is not added. It is structured.</p>
+  </div>
+</section>
+
+<!-- 08 CONTACT -->
+<section id="contact">
+  <div class="v-line"></div>
+  <div class="section-label">0 8 &nbsp;/&nbsp; CONTACT</div>
+  <div class="contact-status">
+    <div class="status-dot"></div>
+    CURRENTLY ACCEPTING SELECTED SYSTEM-BASED PROJECTS
+  </div>
+  <a href="mailto:hello@kohaku.studio" class="contact-email">hello@kohaku.studio</a>
+  <br>
+  <a href="mailto:hello@kohaku.studio" class="contact-cta">
+    START A SYSTEM &nbsp;<span>→</span>
+  </a>
+</section>
+
 <footer>
-  <div class="section-number">08 / CONTACT</div>
-
-  <p>
-    Currently accepting selected projects.<br><br>
-    hello@kohaku.studio
-  </p>
-
-  <a href="#" class="btn">START A SYSTEM</a>
+  <div>© 2025 KOHAKU CREATIVE STUDIO</div>
+  <div>SYSTEM-BASED CREATIVE PRACTICE</div>
 </footer>
 
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+  document.querySelectorAll('a, button, .archive-item, .ctx-tag, .logo-cell, .sec-dot').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+  });
+
+  // Scroll progress
+  const prog = document.getElementById('scroll-progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    prog.style.width = pct + '%';
+  });
+
+  // Section indicator
+  const sections = ['hero','manifesto','archive','capabilities','process','contexts','principle','contact'];
+  const dots = document.querySelectorAll('.sec-dot');
+  dots.forEach((d, i) => {
+    d.addEventListener('click', () => document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' }));
+  });
+  const observer2 = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = sections.indexOf(e.target.id);
+        dots.forEach(d => d.classList.remove('active'));
+        if (idx >= 0) dots[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer2.observe(el); });
+
+  // Reveal on scroll
+  const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.section-label, .hero-title .line, .hero-sub, .hero-services, .hero-desc, .cta-btn, .manifesto-line, .manifesto-coda, .archive-intro, .archive-item, .cap-intro, .cap-item, .cap-footer, .process-intro, .process-step, .process-coda, .contexts-types, .logo-grid, .principle-line, .contact-status, .contact-email, .contact-cta').forEach(el => revealObs.observe(el));
+
+  // Init hero on load
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('#hero .section-label, #hero .hero-title .line, #hero .hero-sub, #hero .hero-services, #hero .hero-desc, #hero .cta-btn').forEach(el => el.classList.add('visible'));
+    }, 200);
+  });
+</script>
 </body>
 </html>
