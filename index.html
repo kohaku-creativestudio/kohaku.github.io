@@ -1,1 +1,227 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>KOHAKU Creative Studio</title>\n    <style>\n        body {\n            background-color: #0a0a0a;\n            color: white;\n            font-family: Arial, sans-serif;\n            margin: 0;\n            padding: 0;\n        }\n        h1, h2, h3 {\n            color: #FF5511;\n        }\n        .hero {\n            padding: 50px;\n            text-align: center;\n            background: #FF5511;\n            color: white;\n        }\n        .section {\n            padding: 40px;\n        }\n        .project-showcase, .services, .process, .contact {\n            background-color: #1a1a1a;\n            margin: 20px 0;\n            padding: 20px;\n        }\n        a {\n            color: #FF5511;\n            text-decoration: none;\n        }\n    </style>\n</head>\n<body>\n    <div class="hero">\n        <h1>Welcome to KOHAKU Creative Studio</h1>\n        <p>Your vision, our creativity.</p>\n    </div>\n    <div class="manifesto section">\n        <h2>Our Manifesto</h2>\n        <p>We believe in the power of creativity and collaboration.</p>\n    </div>\n    <div class="project-showcase section">\n        <h2>Project Showcase</h2>\n        <p>Check out our latest projects.</p>\n    </div>\n    <div class="services section">\n        <h2>Our Services</h2>\n        <p>We offer a range of creative services.</p>\n    </div>\n    <div class="process section">\n        <h2>Our Process</h2>\n        <p>We follow a systematic and collaborative approach.</p>\n    </div>\n    <div class="contact section">\n        <h2>Contact Us</h2>\n        <p>Get in touch for collaborations.</p>\n    </div>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kohaku Creative Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #FF5511;
+      --black: #0a0a0a;
+      --white: #f4f4f4;
+      --gray: #888;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: default;
+    }
+
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.6;
+    }
+
+    section {
+      padding: 120px 10%;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    h1, h2, h3 {
+      font-weight: 400;
+      letter-spacing: 0.05em;
+    }
+
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      color: var(--gray);
+      max-width: 600px;
+    }
+
+    .btn {
+      margin-top: 40px;
+      display: inline-block;
+      padding: 12px 20px;
+      border: 1px solid var(--white);
+      text-decoration: none;
+      color: var(--white);
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: var(--black);
+      border-color: var(--accent);
+    }
+
+    .section-number {
+      color: var(--accent);
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 60px;
+      margin-top: 60px;
+    }
+
+    .project {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      transition: 0.3s;
+    }
+
+    .project:hover {
+      transform: translateX(10px);
+      color: var(--accent);
+    }
+
+    .small {
+      color: var(--gray);
+      font-size: 13px;
+    }
+
+    footer {
+      padding: 120px 10%;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>KOHaku Creative Studio</h1>
+  <p>
+    We design systems for brands, events, and moments that need to be remembered.
+  </p>
+  <a href="#" class="btn">ENTER SYSTEM INDEX</a>
+</section>
+
+<!-- MANIFESTO -->
+<section>
+  <div class="section-number">02 / MANIFESTO</div>
+  <p>
+    A brand is not a logo.<br>
+    An event is not a schedule.<br>
+    A photograph is not evidence.<br><br>
+
+    They are systems of perception.<br><br>
+
+    We design what holds them together.<br><br>
+
+    Identity becomes space.<br>
+    Space becomes moment.<br>
+    Moment becomes memory.
+  </p>
+</section>
+
+<!-- WORK -->
+<section>
+  <div class="section-number">03 / SYSTEM ARCHIVE</div>
+
+  <div class="grid">
+
+    <div class="project">
+      <div class="small">[01] IDENTITY SYSTEM</div>
+      <h3>PROJECT XXXXX</h3>
+      <p class="small">Visual language / Typography / Structure</p>
+    </div>
+
+    <div class="project">
+      <div class="small">[02] EVENT SYSTEM</div>
+      <h3>PROJECT XXXXX</h3>
+      <p class="small">Spatial / Experience / Narrative</p>
+    </div>
+
+    <div class="project">
+      <div class="small">[03] DOCUMENT SYSTEM</div>
+      <h3>PROJECT XXXXX</h3>
+      <p class="small">Photography / Editorial / Memory</p>
+    </div>
+
+    <div class="project">
+      <div class="small">[04] INTEGRATED SYSTEM</div>
+      <h3>PROJECT XXXXX</h3>
+      <p class="small">Brand × Event × Documentation</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section>
+  <div class="section-number">04 / CAPABILITIES</div>
+
+  <p>
+    Brand Identity Systems<br>
+    Event Strategy & Planning<br>
+    Event Production Design<br>
+    Event Photography Systems
+  </p>
+</section>
+
+<!-- PROCESS -->
+<section>
+  <div class="section-number">05 / SYSTEM FLOW</div>
+
+  <p>
+    01 — Field Analysis<br>
+    02 — System Design<br>
+    03 — Experience Build<br>
+    04 — Execution Control<br>
+    05 — Memory Archive
+  </p>
+</section>
+
+<!-- PRINCIPLE -->
+<section>
+  <div class="section-number">07 / PRINCIPLE</div>
+
+  <p>
+    We are not designing aesthetics.<br><br>
+    We are designing systems that make perception stable across time.
+  </p>
+</section>
+
+<!-- CONTACT -->
+<footer>
+  <div class="section-number">08 / CONTACT</div>
+
+  <p>
+    Currently accepting selected projects.<br><br>
+    hello@kohaku.studio
+  </p>
+
+  <a href="#" class="btn">START A SYSTEM</a>
+</footer>
+
+</body>
+</html>
